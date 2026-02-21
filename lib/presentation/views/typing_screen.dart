@@ -4,6 +4,7 @@ import 'package:monkeytype_clone/presentation/widgets/text_display_widget.dart';
 import 'package:monkeytype_clone/presentation/widgets/timer_widget.dart';
 import 'package:monkeytype_clone/presentation/widgets/input_field_widget.dart';
 import 'package:monkeytype_clone/presentation/widgets/stats_widget.dart';
+import 'package:monkeytype_clone/presentation/widgets/set_selector_widget.dart';
 import 'package:provider/provider.dart';
 
 class TypingScreen extends StatefulWidget {
@@ -30,10 +31,45 @@ class _TypingScreenState extends State<TypingScreen> {
         title: const Text('MonkeyType Clone'),
         centerTitle: true,
         actions: [
+          // Селектор языка
+          Consumer<TypingViewModel>(
+            builder: (context, viewModel, _) {
+              return PopupMenuButton<Language>(
+                initialValue: viewModel.currentLanguage,
+                onSelected: (Language language) async {
+                  await viewModel.setLanguage(language);
+                },
+                itemBuilder: (BuildContext context) =>
+                    <PopupMenuEntry<Language>>[
+                  const PopupMenuItem<Language>(
+                    value: Language.ru,
+                    child: Text('Русский'),
+                  ),
+                  const PopupMenuItem<Language>(
+                    value: Language.en,
+                    child: Text('English'),
+                  ),
+                ],
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Row(
+                    children: [
+                      Text(
+                        viewModel.currentLanguage == Language.ru ? 'RU' : 'EN',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      const Icon(Icons.arrow_drop_down),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+          // Кнопка обновления текста
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () {
-              context.read<TypingViewModel>().resetTest();
+              context.read<TypingViewModel>().loadRandomTextFromCurrentSet();
             },
           ),
         ],
@@ -51,6 +87,38 @@ class _TypingScreenState extends State<TypingScreen> {
                 child: Column(
                   children: [
                     const SizedBox(height: 16),
+
+                    // Селектор набора текстов (1-4)
+                    if (viewModel.currentLanguage == Language.ru)
+                      const SetSelectorWidget(),
+
+                    const SizedBox(height: 8),
+
+                    // Информация о текущем наборе
+                    if (viewModel.currentLanguage == Language.ru)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Набор ${viewModel.currentSet} • ${viewModel.availableTexts.length} текстов',
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                            Text(
+                              'Категория: ${viewModel.currentTextCategory}',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
+                                  ),
+                            ),
+                          ],
+                        ),
+                      ),
+
                     TimerWidget(
                       time: viewModel.remainingTime,
                       totalTime: viewModel.totalTimeSeconds,
@@ -58,26 +126,36 @@ class _TypingScreenState extends State<TypingScreen> {
                         _showTimeSelectionDialog(context, viewModel);
                       },
                     ),
+
                     const SizedBox(height: 16),
+
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: TextDisplayWidget(key: ValueKey(viewModel.displayText)),
+                      child: TextDisplayWidget(
+                        key: ValueKey(viewModel.displayText),
+                      ),
                     ),
+
                     const SizedBox(height: 16),
+
                     InputFieldWidget(
                       onChanged: viewModel.updateInput,
                       isActive: viewModel.isActive,
                       isCompleted: viewModel.isCompleted,
                       initialValue: viewModel.userInput,
                     ),
+
                     const SizedBox(height: 16),
+
                     StatsWidget(
                       wpm: viewModel.wpm,
                       accuracy: viewModel.accuracy,
                       correctChars: viewModel.correctChars,
                       incorrectChars: viewModel.incorrectChars,
                     ),
+
                     const SizedBox(height: 24),
+
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: SizedBox(
@@ -95,13 +173,17 @@ class _TypingScreenState extends State<TypingScreen> {
                         ),
                       ),
                     ),
+
                     if (viewModel.isCompleted) ...[
                       const SizedBox(height: 16),
                       Container(
                         padding: const EdgeInsets.all(16),
                         margin: const EdgeInsets.symmetric(horizontal: 16),
                         decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                          color: Theme.of(context)
+                              .colorScheme
+                              .primary
+                              .withOpacity(0.1),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
                             color: Theme.of(context).colorScheme.primary,
@@ -126,15 +208,17 @@ class _TypingScreenState extends State<TypingScreen> {
                                         .textTheme
                                         .titleLarge
                                         ?.copyWith(
-                                          color:
-                                              Theme.of(context).colorScheme.primary,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .primary,
                                           fontWeight: FontWeight.bold,
                                         ),
                                   ),
                                   Text(
                                     'Ваш результат: ${viewModel.wpm} зн/мин, '
                                     'точность: ${viewModel.accuracy.toStringAsFixed(1)}%',
-                                    style: Theme.of(context).textTheme.bodyMedium,
+                                    style:
+                                        Theme.of(context).textTheme.bodyMedium,
                                   ),
                                 ],
                               ),
@@ -143,6 +227,7 @@ class _TypingScreenState extends State<TypingScreen> {
                         ),
                       ),
                     ],
+
                     const SizedBox(height: 32),
                   ],
                 ),
@@ -154,7 +239,8 @@ class _TypingScreenState extends State<TypingScreen> {
     );
   }
 
-  void _showTimeSelectionDialog(BuildContext context, TypingViewModel viewModel) {
+  void _showTimeSelectionDialog(
+      BuildContext context, TypingViewModel viewModel) {
     showDialog(
       context: context,
       builder: (context) {
@@ -166,7 +252,8 @@ class _TypingScreenState extends State<TypingScreen> {
               return ListTile(
                 title: Text('$seconds секунд'),
                 trailing: viewModel.totalTimeSeconds == seconds
-                    ? Icon(Icons.check, color: Theme.of(context).colorScheme.primary)
+                    ? Icon(Icons.check,
+                        color: Theme.of(context).colorScheme.primary)
                     : null,
                 onTap: () {
                   viewModel.setTime(seconds);

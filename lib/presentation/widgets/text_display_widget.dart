@@ -58,16 +58,17 @@ class TextDisplayWidget extends StatelessWidget {
     for (int i = 0; i < typedLength; i++) {
       if (i < originalText.length) {
         final char = originalText[i];
-        final isCorrect = i < correctnessList.length ? correctnessList[i] : false;
-        
+        final isCorrect =
+            i < correctnessList.length ? correctnessList[i] : false;
+
         textSpans.add(
           TextSpan(
             text: char,
             style: TextStyle(
-              color: isCorrect 
-                  ? Theme.of(context).colorScheme.primary 
+              color: isCorrect
+                  ? Theme.of(context).colorScheme.primary
                   : Theme.of(context).colorScheme.error,
-              backgroundColor: isCorrect 
+              backgroundColor: isCorrect
                   ? Theme.of(context).colorScheme.primary.withOpacity(0.1)
                   : Theme.of(context).colorScheme.error.withOpacity(0.1),
               fontWeight: FontWeight.w500,
@@ -100,7 +101,8 @@ class TextDisplayWidget extends StatelessWidget {
           text: cursorChar,
           style: TextStyle(
             color: Colors.transparent,
-            backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+            backgroundColor:
+                Theme.of(context).colorScheme.primary.withOpacity(0.3),
             fontSize: 18,
           ),
         ),

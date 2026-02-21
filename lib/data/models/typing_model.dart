@@ -1,6 +1,5 @@
 import 'package:equatable/equatable.dart';
 import '../../utils/constants.dart';
-import 'package:monkeytype_clone/utils/constants.dart';
 
 class TypingModel extends Equatable {
   final String originalText;
