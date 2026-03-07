@@ -6,6 +6,7 @@ import 'package:monkeytype_clone/presentation/widgets/input_field_widget.dart';
 import 'package:monkeytype_clone/presentation/widgets/stats_widget.dart';
 import 'package:monkeytype_clone/presentation/widgets/set_selector_widget.dart';
 import 'package:provider/provider.dart';
+import 'package:monkeytype_clone/presentation/widgets/my_app_bar.dart';
 
 class TypingScreen extends StatefulWidget {
   const TypingScreen({super.key});
@@ -28,7 +29,7 @@ class _TypingScreenState extends State<TypingScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('MonkeyType Clone'),
+        title: MyAppBarTitle(),
         centerTitle: true,
         actions: [
           // Селектор языка
@@ -273,3 +274,4 @@ class _TypingScreenState extends State<TypingScreen> {
     );
   }
 }
+
